@@ -1,0 +1,5 @@
+node_modules/
+.pages/
+_to_delete/
+*.log
+.DS_Store
