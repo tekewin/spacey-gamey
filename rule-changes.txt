@@ -1,0 +1,54 @@
+Spacey Gamey
+
+Rule changes from the original 1984 rules (current state of the HTML game):
+
+0) Single player for now: one ship vs a computer-generated ship.
+   The human always moves first (no 2d6 roll for initiative).
+   Computers and computer programs (BOBC, Crit-Hit, History, Multi-Ship,
+   Accurator, Master) are not used.
+
+1) Map is 50 x 50 hexes (original 60 x 40). Ships start on the diagonal,
+   50 hexes apart. Ships can't leave the map.
+   Hyperspace drops the ship on a random hex (replaces the quadrant/d10/d20 roll).
+
+2) Rockets CAN cause critical hits, like every other weapon
+   (one crit check per rocket volley).
+
+3) Normal mode - computer ships are built with the lowest amount of credits
+   in your class range. Reward: 1d4 x 1,000 credits.
+   Hard mode - computer ships are built with the highest amount of credits
+   in your class range. Reward: (1d4 + 2) x 1,000 credits.
+
+4) Ships are automatically saved on your local computer in a "hangar"
+   (browser storage) and can be loaded in the next battle.
+   Ships can also be exported/imported as .ship.json files.
+
+5) Ships that are destroyed remain unchanged in the hangar, so not a permanent loss.
+
+6) After a win, the ship is automatically repaired to full hull points, all
+   crit damage is fixed, and all ammo fired is restocked to its pre-battle
+   level, free. Winnings can only be spent on additions - nothing can be sold.
+
+7) Balance changes:
+   Price of photons increased from 50 to 150
+   Beam types V and VI get a 45 hex range to match solar weapon range
+     (to-hit at 31-35: 18, 36-40: 19, 41-45: 20)
+   Solar thrusters cost 1,500 (was 1,000)
+   Conventional thrusters cost 1,500 (was 2,000)
+   Mini-thrusters cost 1,000 (was 1,250)
+   Cannons have a 10 hex range instead of 3, using the plasma to-hit numbers
+   Rammers take less damage when ramming: 1/4 of the damage inflicted
+     (was 1/2), and none with a de-rammer (was 1/4)
+   Damage to nukes is cumulative: 10 total damage destroys a missile
+
+8) Rulings on things the original rules left open:
+   Every weapon can fire only once per turn.
+   Each beam needs its own recharger and each solar weapon its own generator;
+     without one it fires once per battle.
+   One missile launcher fires either a nuke or a plasma, one per turn.
+   Shields reduce the damage of each rocket and of plasma hits (-1 per shield).
+   Nuclear missile speed: 1 hex/turn, 4 with one missile thruster, 8 with two.
+     If the target is within that distance at launch, it hits that turn.
+     Otherwise it flies its full speed toward the target right away, then
+     again on each of the owner's turns.
+   Maximum of 3 shields (conventional) or 3 sunscreen shields (solar).

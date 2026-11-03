@@ -2,12 +2,24 @@
 
 A one-player browser version of *Spacey Gamey* (© 1984 Gemini Games), built from `SPEC.md`.
 
+![Spacey Gamey title screen](docs/screenshots/title.png)
+
 ## Play
-Open **`Play Spacey Gamey.html`** (a copy of `dist/index.html`; the top-level `index.html` is only for `npm run dev`) in a browser (double-click works in Chrome, Edge or Firefox). Everything is in that one file.
+Open **`Play-Spacey-Gamey.html`** (a copy of `dist/index.html`; the top-level `index.html` is only for `npm run dev`) in a browser (double-click works in Chrome, Edge or Firefox). Everything is in that one file.
 Ships you save go in the browser's storage on this device. Use **Export** in the Hangar to keep a `.ship.json` backup, or to move a ship to another computer.
 
 **Controls:** click a green hex to move · Fire buttons on the weapon cards (hover a card to see its range ring) · drag to pan, mouse wheel or pinch to zoom ·
 `Space` = End Turn · `H` = Hyperspace · `1–9` = fire the Nth ready weapon. Tick "fast" in the log panel to speed up animations.
+
+## Screenshots
+
+**Battle:** your ship (C) and the enemy (X) on the 50×50 hex grid. The green hexes show where you can move this turn. Each Fire button shows the hit chance and average damage at the current range.
+
+![Battle on the hex grid](docs/screenshots/battle.png)
+
+**Rules reference:** the To Hit chart, the weapons and damage table, and the turn, movement and critical-hit rules. See also [`rule-changes.txt`](rule-changes.txt) for every change from the original 1984 rules.
+
+![Rules reference page](docs/screenshots/rules-reference.png)
 
 ## Develop
 ```
