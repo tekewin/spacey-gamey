@@ -86,7 +86,7 @@ function applyDamage(b, side, dmg, ev) {
   if (hpLeft(S) <= 0 && !b.over) {
     b.over = true; b.winner = other(side);
     log(b, side, `${S.def.name} is DESTROYED!`, 'crit');
-    ev.push({ fx: 'boom', at: { ...S.pos }, big: true });
+    ev.push({ fx: 'boom', at: { ...S.pos }, big: true, kill: side });
   }
 }
 

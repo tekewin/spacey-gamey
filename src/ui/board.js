@@ -20,7 +20,7 @@ export class Board {
     this.hover = new Graphics(); this.tokens = new Container(); this.fx = new Container();
     w.addChild(this.stars, this.grid, this.overlay, this.rangeG, this.hover, this.tokens, this.fx);
     this.drawStatic();
-    this.ships = {}; this.missiles = {};
+    this.ships = {}; this.missiles = {}; this.dead = new Set();
     this.setupInput();
   }
   destroy() { try { this.app.destroy(true, { children: true }); } catch {} }
@@ -101,6 +101,7 @@ export class Board {
       if (!this.ships[side]) { this.ships[side] = this.makeToken(S.def.counter.glyph, S.def.counter.color); this.tokens.addChild(this.ships[side]); }
       const p = hexToPixel(S.pos.col, S.pos.row), off = side === 'ai' && S.pos.col === b.ships.human.pos.col && S.pos.row === b.ships.human.pos.row ? 7 : 0;
       this.ships[side].position.set(p.x + off, p.y + off); this.ships[side].alpha = 1;
+      this.ships[side].visible = !this.dead.has(side);
     }
     const ids = new Set(b.missiles.map((m) => m.id));
     for (const [id, g] of Object.entries(this.missiles)) if (!ids.has(+id)) { g.destroy(); delete this.missiles[id]; }
@@ -140,11 +141,14 @@ export class Board {
     g.destroy();
     if (hit) await this.animBoom(to, false);
   }
-  async animBoom(at, big) {
+  async animBoom(at, big, kill) {
     const p = hexToPixel(at.col, at.row), g = new Graphics(); this.fx.addChild(g); sfx.boom(big);
-    const R = big ? SIZE * 3 : SIZE * 1.1;
-    await this.tween(big ? 700 : 300, (k) => { g.clear(); g.circle(p.x, p.y, R * k).fill({ color: big ? 0xffffff : 0xffb347, alpha: (1 - k) * 0.8 }).stroke({ width: 2, color: 0xff6a2a, alpha: 1 - k }); });
+    // A ship-destroying blast is twice the size of a normal big explosion
+    const R = kill ? SIZE * 6 : big ? SIZE * 3 : SIZE * 1.1;
+    await this.tween(kill ? 1000 : big ? 700 : 300, (k) => { g.clear(); g.circle(p.x, p.y, R * k).fill({ color: big ? 0xffffff : 0xffb347, alpha: (1 - k) * 0.8 }).stroke({ width: kill ? 3 : 2, color: 0xff6a2a, alpha: 1 - k }); });
     g.destroy();
+    // Remove the destroyed ship's icon once the explosion has finished
+    if (kill) { this.dead.add(kill); if (this.ships[kill]) this.ships[kill].visible = false; }
   }
   async animHyper(side, from, to) {
     const tok = this.ships[side]; sfx.hyper();
@@ -171,7 +175,7 @@ export class Board {
       if (e.fx === 'dmg') { await this.animDamage(e.at, e.amount, e.side); continue; }
       if (e.fx === 'move') await this.animMove(e.side, e.path);
       else if (e.fx === 'shot') await this.animShot(e.form, e.from, e.to, e.hit);
-      else if (e.fx === 'boom') await this.animBoom(e.at, e.big);
+      else if (e.fx === 'boom') await this.animBoom(e.at, e.big, e.kill);
       else if (e.fx === 'crit') await this.animBoom(e.at, false);
       else if (e.fx === 'hyper') await this.animHyper(e.side, e.from, e.to);
       else if (e.fx === 'missileNew') { this.syncShips(b); const g = this.missiles[e.id]; if (g && e.from) { const p0 = hexToPixel(e.from.col, e.from.row); g.position.set(p0.x, p0.y); } sfx.thrust(0.5); }
