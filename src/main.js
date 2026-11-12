@@ -10,6 +10,7 @@ import { runBattle } from './ui/battle.js';
 import { listShips, saveShip, deleteShip, exportShip, importShipFile, saveBattle, loadBattle, clearBattle, settings, saveSettings, storageOk } from './ui/storage.js';
 import { esc, fmt, sleep } from './ui/util.js';
 import { sfx } from './ui/sound.js';
+import { backdrop } from './ui/backdrop.js';
 
 const root = document.getElementById('app');
 let current = null; // { destroy }
@@ -19,10 +20,28 @@ const clear = () => { current?.destroy?.(); current = null; root.onclick = root.
 function title() {
   clear();
   const resume = loadBattle();
+  backdrop('title');
   root.innerHTML = `<div class="screen title">
-    <div class="logo"><div class="l1">SPACEY</div><svg viewBox="0 0 120 60" class="ship-art"><path d="M10 30 L60 18 L110 30 L60 42 Z M45 30 L60 8 L75 30 M60 42 L60 54" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="60" cy="30" r="4" fill="currentColor"/></svg><div class="l2">GAMEY</div></div>
-    <p class="tag">A game of ship-to-ship combat in outer space · © 1984 Gemini Games</p>
-    <div class="menu">
+    <div class="logo">
+      <div class="l1" data-text="SPACEY">SPACEY</div>
+      <svg viewBox="0 0 260 90" class="ship-art" aria-hidden="true">
+        <defs>
+          <linearGradient id="hullg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9f7ff"/><stop offset=".5" stop-color="#5f86a3"/><stop offset="1" stop-color="#16263a"/></linearGradient>
+          <linearGradient id="flameg" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".25" stop-color="#7fe9ff"/><stop offset="1" stop-color="#1a6cff" stop-opacity="0"/></linearGradient>
+          <radialGradient id="cockg" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#d8fff0"/><stop offset=".5" stop-color="#2bd46b"/><stop offset="1" stop-color="#063a22"/></radialGradient>
+        </defs>
+        <g class="flames"><path d="M58 38 L4 45 L58 52 Z" fill="url(#flameg)"/><path d="M62 24 L30 28 L62 32 Z" fill="url(#flameg)"/><path d="M62 58 L30 62 L62 66 Z" fill="url(#flameg)"/></g>
+        <path d="M60 30 L100 10 L150 18 L120 34 Z M60 60 L100 80 L150 72 L120 56 Z" fill="url(#hullg)" stroke="#9fe8ff" stroke-width="1.2"/>
+        <path d="M56 36 L120 30 L236 45 L120 60 L56 54 L62 45 Z" fill="url(#hullg)" stroke="#bff4ff" stroke-width="1.4"/>
+        <path d="M100 10 L106 4 L118 6 M100 80 L106 86 L118 84" stroke="#ff5aa8" stroke-width="2" fill="none"/>
+        <path d="M120 38 L180 42 L180 48 L120 52" fill="none" stroke="#2a4a66" stroke-width="1"/>
+        <ellipse cx="168" cy="45" rx="22" ry="6.5" fill="url(#cockg)" stroke="#d8fff0" stroke-width=".8"/>
+        <circle cx="236" cy="45" r="2" fill="#fff" class="nav"/>
+      </svg>
+      <div class="l2" data-text="GAMEY">GAMEY</div>
+    </div>
+    <p class="tagline">A game of ship-to-ship combat in outer space <span>·</span> © 1984 Gemini Games</p>
+    <div class="menu glass">
       ${resume && !resume.over ? `<button class="primary" data-go="resume">Resume Battle — ${esc(resume.ships.human.def.name)} (turn ${resume.turn})</button>` : ''}
       <button class="${resume && !resume.over ? '' : 'primary'}" data-go="build">Build New Ship</button>
       <button data-go="hangar">Load Ship (Hangar)</button>
@@ -43,14 +62,14 @@ function title() {
 
 /* ---------- Builder ---------- */
 function build() {
-  clear();
+  clear(); backdrop('dim');
   openBuilder(root, {
     mode: 'new', ship: newShip('conventional'), onBack: title,
     onDone: (ship, action) => { const saved = saveShip(ship) || ship; if (action === 'launch') briefing(saved); else hangar(saved.id); },
   });
 }
 function upgrade(ship, { afterBattle = false } = {}) {
-  clear();
+  clear(); backdrop('dim');
   openBuilder(root, {
     mode: 'upgrade', ship, title: afterBattle ? 'Repair, Rearm & Upgrade' : `Upgrade — ${ship.name}`, onBack: afterBattle ? () => { saveShip(ship); title(); } : hangar,
     onDone: (s, action) => { const saved = saveShip(s) || s; if (action === 'launch') briefing(saved); else title(); },
@@ -59,7 +78,7 @@ function upgrade(ship, { afterBattle = false } = {}) {
 
 /* ---------- Hangar ---------- */
 function hangar(highlight) {
-  clear();
+  clear(); backdrop('dim');
   const ships = listShips().sort((a, b) => (b.savedAt || '').localeCompare(a.savedAt || ''));
   root.innerHTML = `<div class="screen hangar">
     <header class="bar"><button data-back>◂ Back</button><h2>Hangar</h2><label class="file"><input type="file" accept=".json,application/json" data-import hidden>Import ship file…</label></header>
@@ -93,7 +112,7 @@ function hangar(highlight) {
 
 /* ---------- Briefing ---------- */
 function briefing(ship) {
-  clear();
+  clear(); backdrop('dim');
   const v = shipValue(ship), cls = shipClass(v), hard = settings.hard;
   const budget = hard ? classFloor(cls) + 9999 : classFloor(cls); // Hard: top of the class range
   const foe = aiBuildShip(budget);
@@ -116,7 +135,7 @@ function briefing(ship) {
 
 /* ---------- Battle ---------- */
 async function battle(b) {
-  clear();
+  clear(); backdrop('off');
   current = await runBattle(root, b, { onEnd: (bb) => { clearBattle(); current?.destroy?.(); current = null; bb.winner === 'human' ? victory(bb) : defeat(bb); }, onQuit: () => { current = null; title(); } });
 }
 const summary = (b) => { const h = b.stats.human, a = b.stats.ai; return `<table class="sum"><tr><th></th><th>You</th><th>Enemy</th></tr>
@@ -125,7 +144,7 @@ const summary = (b) => { const h = b.stats.human, a = b.stats.ai; return `<table
   <p class="muted small">${b.turn} turn${b.turn === 1 ? "" : "s"}.</p>`; };
 
 function victory(b) {
-  clear();
+  clear(); backdrop('dim');
   const ship = survivorShip(b);
   const foe = b.ships.ai.def;
   root.innerHTML = `<div class="screen result win"><div class="panel brief">
@@ -148,7 +167,7 @@ function victory(b) {
   };
 }
 function defeat(b) {
-  clear();
+  clear(); backdrop('dim');
   root.innerHTML = `<div class="screen result lose"><div class="panel brief">
     <h2>SHIP DESTROYED</h2><p>${esc(b.ships.human.def.name)} was lost to ${esc(b.ships.ai.def.name)}.</p>
     <p class="small muted">The enemy was a ${b.ships.ai.def.type} ship. Your saved copy in the hangar is unchanged and can fly again next game.</p>
@@ -179,7 +198,7 @@ function weaponRows() {
   return rows.join('');
 }
 function rules() {
-  clear();
+  clear(); backdrop('dim');
   const rows = Object.keys(TO_HIT).map((f) => `<tr><th>${FORM_NAMES[f]}</th><td class="mr">${MAX_RANGE[f] === Infinity ? '51+' : MAX_RANGE[f]}</td>${TO_HIT[f].map((v) => `<td>${v ?? '—'}</td>`).join('')}</tr>`).join('');
   root.innerHTML = `<div class="screen rules"><header class="bar"><button data-back>◂ Back</button><h2>Rules Reference</h2></header>
   <div class="panel"><h3>To Hit Chart</h3><div class="tablewrap"><table class="chart"><tr><th>Attack form</th><th>Max</th>${RANGE_LABELS.map((l) => `<th>${l}</th>`).join('')}</tr>${rows}</table></div>

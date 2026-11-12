@@ -106,8 +106,8 @@ export async function runBattle(root, b, { onEnd, onQuit }) {
         <div class="row"><span>Range</span><b>${d} hexes</b></div>
         <div class="muted small">Loadout unknown — revealed as it fires. Odds and damage shown are before enemy shields.</div>
       </div>
-      ${enemyMissiles.length ? `<div class="panel"><b>Target</b><label class="tgt"><input type="radio" name="tgt" value="ship" ${target === 'ship' ? 'checked' : ''}> Enemy ship</label>
-        ${enemyMissiles.map((m) => `<label class="tgt bad"><input type="radio" name="tgt" value="${m.id}" ${target === m.id ? 'checked' : ''}> Incoming nuke #${m.id} — ${dist(S.pos, m.pos)} hexes, speed ${m.speed}, ${missileHpLeft(m)}/10 to kill</label>`).join('')}</div>` : ''}
+      ${enemyMissiles.length ? `<div class="panel"><b>Target</b><label class="tgt ${target === 'ship' ? 'on' : ''}"><input type="radio" name="tgt" value="ship" ${target === 'ship' ? 'checked' : ''}> <span>Enemy ship</span>${target === 'ship' ? '<span class="sel">SELECTED</span>' : ''}</label>
+        ${enemyMissiles.map((m) => `<label class="tgt bad ${target === m.id ? 'on' : ''}"><input type="radio" name="tgt" value="${m.id}" ${target === m.id ? 'checked' : ''}> <span>Incoming nuke #${m.id} — ${dist(S.pos, m.pos)} hexes, speed ${m.speed}, ${missileHpLeft(m)}/10 to kill</span>${target === m.id ? '<span class="sel">SELECTED</span>' : ''}</label>`).join('')}</div>` : ''}
       ${myMissiles.length ? `<div class="muted small">Your missiles in flight: ${myMissiles.map((m) => `#${m.id} (${dist(m.pos, T.pos)} from target)`).join(', ')}</div>` : ''}
       <div class="weapons">${weapons(S).map(weaponCard).join('') || '<div class="muted">No weapons.</div>'}</div>
       <div class="panel logp"><div class="loghead"><b>Combat log</b><label class="small"><input type="checkbox" data-snd ${settings.sound ? 'checked' : ''}> sound</label><label class="small"><input type="checkbox" data-fast ${settings.fast ? 'checked' : ''}> fast</label><button class="tiny" data-quit>Quit</button></div>
